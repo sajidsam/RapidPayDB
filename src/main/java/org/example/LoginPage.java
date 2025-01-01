@@ -5,6 +5,9 @@ import java.awt.*;
 
 public class LoginPage {
     public static void main(String[] args) {
+
+        //Fixed the balance issue
+
         // Create the frame
         JFrame frame = new JFrame("RapidPay");
         frame.setSize(800, 480); // Set the desired size of your window
@@ -17,7 +20,7 @@ public class LoginPage {
         // Optionally, prevent the window from being resized
         frame.setResizable(false); // Set this to true if you want to allow resizing
 
-        // Set up the card layout and main panelz
+        // Set up the card layout and main panel
         CardLayout cardLayout = new CardLayout();
         JPanel mainPanel = new JPanel(cardLayout);
 

@@ -13,7 +13,7 @@ import javax.swing.border.Border;
 import org.mindrot.jbcrypt.BCrypt;
 
 public class Login {
-    //updated at ajke-------------------------------
+
     public JPanel createLoginPage(JPanel mainPanel, CardLayout cardLayout) {
         JPanel panel = new JPanel(null);
 
@@ -211,16 +211,21 @@ public class Login {
 
                             // Compare entered password with stored hashed password
                             if (BCrypt.checkpw(password, storedHashedPassword)) {
+                                // Fetch the account_number for the logged-in user
+                                String accountNumber = resultSet.getString("account_number");
+
                                 SwingUtilities.invokeLater(() -> {
                                     if ("Admin".equals(role)) {
                                         AdminDashBoard adminDashBoard = new AdminDashBoard();
                                         adminDashBoard.setVisible(true);
                                     } else {
-                                        UserDashBoard userDashboard = new UserDashBoard();
+                                        // Pass the accountNumber to UserDashBoard
+                                        UserDashBoard userDashboard = new UserDashBoard(accountNumber);
                                         userDashboard.setVisible(true);
                                     }
                                 });
 
+                                // Close the current login window
                                 Window loginWindow = SwingUtilities.getWindowAncestor(panel);
                                 if (loginWindow != null) {
                                     loginWindow.dispose();

@@ -7,7 +7,12 @@ import java.awt.event.ActionListener;
 
 public class SendMoney extends JFrame {
 
-    public SendMoney() {
+    private String accountNumber; // Store the account number (or username)
+
+    // Modify the constructor to accept the account number (or username)
+    public SendMoney(String accountNumber) {
+        this.accountNumber = accountNumber; // Set account number
+
         setTitle("Send Money");
         setSize(400, 300);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -48,63 +53,27 @@ public class SendMoney extends JFrame {
         sendMoneyPanel.add(passwordLabel);
         sendMoneyPanel.add(passwordField);
 
-        // Submit Button
-        JButton submitButton = new JButton("Send Money");
-        submitButton.setFont(new Font("Arial", Font.BOLD, 14));
-        submitButton.setBackground(new Color(20, 60, 120));
-        submitButton.setForeground(Color.WHITE);
-        submitButton.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
-        submitButton.addActionListener(e -> {
-            String accountNumber = accountNumberTextField.getText();
-            String amountText = amountField.getText();
-            String passwordText = new String(passwordField.getPassword());
+        JButton sendButton = new JButton("Send");
+        styleButton(sendButton);
+        sendMoneyPanel.add(sendButton);
 
-            if (accountNumber.isEmpty() || amountText.isEmpty() || passwordText.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "All fields are required!", "Error", JOptionPane.ERROR_MESSAGE);
-            } else {
-                try {
-                    double amount = Double.parseDouble(amountText);
-                    if (amount <= 0) {
-                        JOptionPane.showMessageDialog(this, "Please enter a valid amount!", "Error", JOptionPane.ERROR_MESSAGE);
-                    } else {
-                        // Assuming there's a method to process the money transfer
-                        processMoneyTransfer(accountNumber, amount);
-                        JOptionPane.showMessageDialog(this, "Successfully sent $" + amount + " to Account: " + accountNumber);
-                    }
-                } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(this, "Invalid amount. Please enter a valid number.", "Error", JOptionPane.ERROR_MESSAGE);
-                }
+        sendButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String recipientAccount = accountNumberTextField.getText();
+                String amount = amountField.getText();
+                char[] password = passwordField.getPassword();
+
+                // Here, you would add logic to process the payment
+                JOptionPane.showMessageDialog(SendMoney.this,
+                        "Money sent to account " + recipientAccount + " amounting to " + amount,
+                        "Transaction Successful", JOptionPane.INFORMATION_MESSAGE);
             }
         });
 
-        // Back Button
-        JButton backButton = new JButton("Back");
-        backButton.setFont(new Font("Arial", Font.BOLD, 14));
-        backButton.setBackground(new Color(20, 60, 120));
-        backButton.setForeground(Color.WHITE);
-        backButton.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
-        backButton.addActionListener(e -> {
-            // Clear the text fields
-            accountNumberTextField.setText("");
-            amountField.setText("");
-            passwordField.setText("");
-
-            // Go back to the User Dashboard
-            dispose(); // Close the current window
-            UserDashBoard dashboard = new UserDashBoard(); // Create an instance of UserDashBoard
-            dashboard.setVisible(true); // Make the UserDashBoard visible
-        });
-
-        sendMoneyPanel.add(submitButton);
-        sendMoneyPanel.add(backButton);
-
-        // Add panel to the frame
         add(sendMoneyPanel);
-        revalidate();
-        repaint();
     }
 
-    // Helper method for styling
     private void styleTextField(JTextField textField) {
         textField.setFont(new Font("Arial", Font.PLAIN, 14));
         textField.setBackground(Color.WHITE);
@@ -117,15 +86,11 @@ public class SendMoney extends JFrame {
         passwordField.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
     }
 
-    // Simulated method to process money transfer (implement actual logic in your main app)
-    private void processMoneyTransfer(String accountNumber, double amount) {
-        // Logic for money transfer goes here
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            SendMoney sendMoney = new SendMoney();
-            sendMoney.setVisible(true);
-        });
+    private void styleButton(JButton button) {
+        button.setBackground(new Color(20, 60, 120));
+        button.setForeground(Color.WHITE);
+        button.setFont(new Font("Arial", Font.BOLD, 14));
+        button.setFocusPainted(false);
+        button.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
     }
 }

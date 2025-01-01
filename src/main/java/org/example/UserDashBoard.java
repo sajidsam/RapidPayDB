@@ -6,14 +6,20 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 public class UserDashBoard extends JFrame {
 
     private JLabel balanceAmount; // Declare the balance label as an instance variable to update it
     private JLabel creditScoreLabel; // Label to display the credit score
     private int creditScore = 0; // Initial credit score
+    private String accountNumber; // Store the account number
 
-    public UserDashBoard() {
+    // Modify constructor to accept accountNumber
+    public UserDashBoard(String accountNumber) {
+        this.accountNumber = accountNumber; // Set accountNumber
         setTitle("RapidPay - User Dashboard");
         setSize(800, 600); // Increased size for better layout
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -43,6 +49,9 @@ public class UserDashBoard extends JFrame {
         balanceAmount.setForeground(new Color(34, 139, 34)); // Green for balance
         balanceAmount.setBounds(500, 120, 200, 30);
         dashboardPanel.add(balanceAmount);
+
+        // Retrieve the balance from the database and update the balanceAmount label
+        retrieveAndUpdateBalance();
 
         // Add credit score overview
         JLabel creditScoreTextLabel = new JLabel(" Credit Score ");
@@ -75,7 +84,7 @@ public class UserDashBoard extends JFrame {
         sendMoneyButton.setBounds(30, 180, 150, 40);
         sendMoneyButton.addActionListener(e -> {
             dispose();
-            SendMoney sendMoneyWindow = new SendMoney(); // Open SendMoney class
+            SendMoney sendMoneyWindow = new SendMoney(""); // Open SendMoney class
             sendMoneyWindow.setVisible(true);
         });
         addHoverEffect(sendMoneyButton);
@@ -160,6 +169,26 @@ public class UserDashBoard extends JFrame {
         repaint();
     }
 
+    // Method to retrieve and update the balance from the database based on accountNumber
+    private void retrieveAndUpdateBalance() {
+        try (Connection connection = DatabaseUtil.getConnection()) {
+            String query = "SELECT balance FROM user_balance WHERE account_number = ?";
+            try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+                preparedStatement.setString(1, accountNumber);
+
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    if (resultSet.next()) {
+                        double balance = resultSet.getDouble("balance");
+                        balanceAmount.setText(" $ " + String.format("%.2f", balance)); // Update balance label
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error retrieving balance.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
     private void styleButton(JButton button) {
         button.setFocusPainted(false);
         button.setBackground(new Color(20, 60, 120));
@@ -189,7 +218,7 @@ public class UserDashBoard extends JFrame {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            UserDashBoard dashboard = new UserDashBoard();
+            UserDashBoard dashboard = new UserDashBoard("someAccountNumber"); // Pass account number here
             dashboard.setVisible(true);
         });
     }
