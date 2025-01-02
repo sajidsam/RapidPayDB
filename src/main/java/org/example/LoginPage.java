@@ -23,7 +23,7 @@ public class LoginPage {
         // Set up the card layout and main panel
         CardLayout cardLayout = new CardLayout();
         JPanel mainPanel = new JPanel(cardLayout);
-
+        //aa
         // Add the login page, sign-up page, and forgot password page
         Login login = new Login();
         JPanel loginPanel = login.createLoginPage(mainPanel, cardLayout);
