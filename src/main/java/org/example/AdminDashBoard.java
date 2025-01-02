@@ -38,7 +38,7 @@ public class AdminDashBoard extends JFrame {
         headerPanel.add(logoLabel, BorderLayout.WEST);
         headerPanel.add(welcomeLabel, BorderLayout.EAST);
 
-        // Sidebar panel (Navigation)
+        // Sidebar panel (Navigation) with Buttons
         JPanel sidebarPanel = new JPanel();
         sidebarPanel.setLayout(new GridLayout(6, 1, 10, 10));
         sidebarPanel.setPreferredSize(new Dimension(180, 0));
@@ -67,7 +67,16 @@ public class AdminDashBoard extends JFrame {
                 }
             });
 
-            // Add action listener for Logout button
+            // Add action listener for "Manage Users" button
+            if ("Manage Users".equals(item)) {
+                button.addActionListener(e -> {
+                    // Open ManageUsers window
+                   new ManageUsers();
+                    dispose(); // Close the AdminDashboard window
+                });
+            }
+
+            // Add action listener for "Logout" button
             if ("Logout".equals(item)) {
                 button.addActionListener(e -> {
                     int confirm = JOptionPane.showConfirmDialog(
