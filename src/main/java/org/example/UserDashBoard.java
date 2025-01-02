@@ -84,7 +84,7 @@ public class UserDashBoard extends JFrame {
         sendMoneyButton.setBounds(30, 180, 150, 40);
         sendMoneyButton.addActionListener(e -> {
             dispose();
-            SendMoney sendMoneyWindow = new SendMoney(""); // Open SendMoney class
+            SendMoney sendMoneyWindow = new SendMoney(accountNumber); // Open SendMoney class
             sendMoneyWindow.setVisible(true);
         });
         addHoverEffect(sendMoneyButton);

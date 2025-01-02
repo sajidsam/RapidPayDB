@@ -1,9 +1,14 @@
 package org.example;
 
+import org.mindrot.jbcrypt.BCrypt;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 public class SendMoney extends JFrame {
 
@@ -64,10 +69,67 @@ public class SendMoney extends JFrame {
                 String amount = amountField.getText();
                 char[] password = passwordField.getPassword();
 
-                // Here, you would add logic to process the payment
-                JOptionPane.showMessageDialog(SendMoney.this,
-                        "Money sent to account " + recipientAccount + " amounting to " + amount,
-                        "Transaction Successful", JOptionPane.INFORMATION_MESSAGE);
+               try (Connection conn = DatabaseUtil.getConnection()) {
+                 conn.setAutoCommit(false);
+                 String passwordQuery = "SELECT password FROM users WHERE account_number = ?";
+                    try (PreparedStatement passwordStmt = conn.prepareStatement(passwordQuery)) {
+                        passwordStmt.setString(1, accountNumber);
+                        try (ResultSet rs = passwordStmt.executeQuery()) {
+                            if (rs.next()) {
+                                String correctPassword = rs.getString("password");
+                                if (BCrypt.checkpw(String.valueOf(password), correctPassword)) {
+                                    // Password is correct
+                                } else {
+                                    JOptionPane.showMessageDialog(SendMoney.this,
+                                            "Incorrect password. Please try again.",
+                                            "Error", JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+                            }
+                        }
+                    }
+
+    // Retrieve the current balance
+    String getBalanceQuery = "SELECT balance FROM user_balance WHERE account_number = ?";
+    try (PreparedStatement getBalanceStmt = conn.prepareStatement(getBalanceQuery)) {
+        getBalanceStmt.setString(1, accountNumber);
+        try (ResultSet rs = getBalanceStmt.executeQuery()) {
+            if (rs.next()) {
+                double currentBalance = rs.getDouble("balance");
+
+                // Update the balance
+                String updateBalanceQuery = "UPDATE user_balance SET balance = ? WHERE account_number = ?";
+                String UpdateReceiverBalance = "UPDATE user_balance SET balance = balance + ? WHERE account_number = ?";
+                try (PreparedStatement updateBalanceStmt = conn.prepareStatement(updateBalanceQuery)) {
+                    double newBalance = currentBalance - Double.parseDouble(amount);
+                    updateBalanceStmt.setDouble(1, newBalance);
+                    updateBalanceStmt.setString(2, accountNumber);
+                    updateBalanceStmt.executeUpdate();
+
+                    conn.commit();
+                    JOptionPane.showMessageDialog(SendMoney.this,
+                            "Money sent to account " + recipientAccount + " amounting to " + amount,
+                            "Transaction Successful", JOptionPane.INFORMATION_MESSAGE);
+                }
+                try (PreparedStatement updateBalanceStmt = conn.prepareStatement(UpdateReceiverBalance)) {
+                    updateBalanceStmt.setDouble(1, Double.parseDouble(amount));
+                    updateBalanceStmt.setString(2, recipientAccount);
+                    updateBalanceStmt.executeUpdate();
+
+                    conn.commit();
+                    JOptionPane.showMessageDialog(SendMoney.this,
+                            "Money received from account " + accountNumber + " amounting to " + amount,
+                            "Transaction Successful", JOptionPane.INFORMATION_MESSAGE);
+                }
+            }
+        }
+    } catch (Exception ex) {
+        conn.rollback();
+        ex.printStackTrace();
+    }
+} catch (Exception ex) {
+    ex.printStackTrace();
+}
             }
         });
 
