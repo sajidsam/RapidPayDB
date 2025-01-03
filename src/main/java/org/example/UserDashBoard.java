@@ -12,103 +12,90 @@ import java.sql.ResultSet;
 
 public class UserDashBoard extends JFrame {
 
-    private JLabel balanceAmount; // Declare the balance label as an instance variable to update it
-    private JLabel creditScoreLabel; // Label to display the credit score
-    private int creditScore = 0; // Initial credit score
-    private String accountNumber; // Store the account number
+    private JLabel balanceAmount;
+    private JLabel creditScoreLabel;
+    private int creditScore = 0;
+    private String accountNumber;
 
-    // Modify constructor to accept accountNumber
     public UserDashBoard(String accountNumber) {
-        this.accountNumber = accountNumber; // Set accountNumber
+        this.accountNumber = accountNumber;
         setTitle("RapidPay - User Dashboard");
-        setSize(800, 600); // Increased size for better layout
+        setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
 
-        // Dashboard panel with light theme
         JPanel dashboardPanel = new JPanel(null);
-        dashboardPanel.setBackground(new Color(240, 248, 255)); // Light theme background
+        dashboardPanel.setBackground(new Color(240, 248, 255));
 
-        // Add header
         JLabel header = new JLabel(" RapidPay ", SwingConstants.CENTER);
         header.setFont(new Font("Arial", Font.BOLD, 28));
         header.setForeground(new Color(20, 60, 120));
         header.setBounds(0, 10, 800, 50);
         dashboardPanel.add(header);
 
-        // Add balance overview
         JLabel balanceLabel = new JLabel(" Your Balance ");
         balanceLabel.setFont(new Font("Arial", Font.BOLD, 20));
         balanceLabel.setBounds(470, 80, 200, 30);
         dashboardPanel.add(balanceLabel);
 
-        // Balance label that will update when money is added
-        balanceAmount = new JLabel(" $ 0.00", SwingConstants.LEFT); // Initial balance
+        balanceAmount = new JLabel(" $ 0.00", SwingConstants.LEFT);
         balanceAmount.setFont(new Font("Arial", Font.PLAIN, 24));
-        balanceAmount.setForeground(new Color(34, 139, 34)); // Green for balance
+        balanceAmount.setForeground(new Color(34, 139, 34));
         balanceAmount.setBounds(500, 120, 200, 30);
         dashboardPanel.add(balanceAmount);
 
-        // Retrieve the balance from the database and update the balanceAmount label
         retrieveAndUpdateBalance();
 
-        // Add credit score overview
         JLabel creditScoreTextLabel = new JLabel(" Credit Score ");
         creditScoreTextLabel.setFont(new Font("Arial", Font.BOLD, 20));
         creditScoreTextLabel.setBounds(620, 80, 200, 30);
         dashboardPanel.add(creditScoreTextLabel);
 
-        // Credit Score label
         creditScoreLabel = new JLabel(String.valueOf(creditScore), SwingConstants.LEFT);
         creditScoreLabel.setFont(new Font("Arial", Font.PLAIN, 24));
-        creditScoreLabel.setForeground(new Color(255, 140, 0)); // Orange for credit score
+        creditScoreLabel.setForeground(new Color(255, 140, 0));
         creditScoreLabel.setBounds(630, 120, 200, 30);
         dashboardPanel.add(creditScoreLabel);
 
-        // Add Profile Button
         JButton profileButton = new JButton("Profile");
         styleButton(profileButton);
-        profileButton.setBounds(300, 80, 150, 40); // Position next to "Your Balance" section
+        profileButton.setBounds(300, 80, 150, 40);
         profileButton.addActionListener(e -> {
-            dispose(); // Close the UserDashBoard window
-            ProfileInfo profileInfo = new ProfileInfo(); // Open ProfileInfo class
+            ProfileInfo profileInfo = new ProfileInfo(accountNumber); // Pass accountNumber here
             profileInfo.setVisible(true);
         });
         addHoverEffect(profileButton);
         dashboardPanel.add(profileButton);
 
-        // Send Money button
         JButton sendMoneyButton = new JButton("Send Money");
         styleButton(sendMoneyButton);
         sendMoneyButton.setBounds(30, 180, 150, 40);
         sendMoneyButton.addActionListener(e -> {
             dispose();
-            SendMoney sendMoneyWindow = new SendMoney(accountNumber); // Open SendMoney class
+            SendMoney sendMoneyWindow = new SendMoney(accountNumber);
             sendMoneyWindow.setVisible(true);
         });
         addHoverEffect(sendMoneyButton);
         dashboardPanel.add(sendMoneyButton);
 
-        // Add Money button
         JButton addMoneyButton = new JButton("Add Money");
         styleButton(addMoneyButton);
         addMoneyButton.setBounds(200, 180, 150, 40);
         addMoneyButton.addActionListener(e -> {
             dispose();
-            AddMoney addMoneyWindow = new AddMoney(); // Open AddMoney class
+            AddMoney addMoneyWindow = new AddMoney();
             addMoneyWindow.setVisible(true);
         });
         addHoverEffect(addMoneyButton);
         dashboardPanel.add(addMoneyButton);
 
-        // Pay Bill button
         JButton payBillButton = new JButton("Pay Bill");
         styleButton(payBillButton);
         payBillButton.setBounds(370, 180, 150, 40);
         payBillButton.addActionListener(e -> {
             JOptionPane.showMessageDialog(this, "Pay Bill feature coming soon!");
-            increaseCreditScore(); // Increment credit score after a bill payment
+            increaseCreditScore();
         });
         addHoverEffect(payBillButton);
         dashboardPanel.add(payBillButton);
@@ -169,7 +156,6 @@ public class UserDashBoard extends JFrame {
         repaint();
     }
 
-    // Method to retrieve and update the balance from the database based on accountNumber
     private void retrieveAndUpdateBalance() {
         try (Connection connection = DatabaseUtil.getConnection()) {
             String query = "SELECT balance FROM user_balance WHERE account_number = ?";
@@ -179,7 +165,7 @@ public class UserDashBoard extends JFrame {
                 try (ResultSet resultSet = preparedStatement.executeQuery()) {
                     if (resultSet.next()) {
                         double balance = resultSet.getDouble("balance");
-                        balanceAmount.setText(" $ " + String.format("%.2f", balance)); // Update balance label
+                        balanceAmount.setText(" $ " + String.format("%.2f", balance));
                     }
                 }
             }
@@ -218,7 +204,7 @@ public class UserDashBoard extends JFrame {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            UserDashBoard dashboard = new UserDashBoard("someAccountNumber"); // Pass account number here
+            UserDashBoard dashboard = new UserDashBoard("someAccountNumber"); // Replace "someAccountNumber" with actual account number for testing
             dashboard.setVisible(true);
         });
     }

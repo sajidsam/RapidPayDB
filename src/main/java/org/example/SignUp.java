@@ -107,14 +107,26 @@ public class SignUp {
                             int rowsInsertedBalance = balanceStmt.executeUpdate();
 
                             if (rowsInsertedBalance > 0) {
-                                JOptionPane.showMessageDialog(panel, "Account Created Successfully!");
+                                // Insert the account number into the user_profile table
+                                String queryInsertUserProfile = "INSERT INTO user_profile (account_number) VALUES (?)";
+                                try (PreparedStatement profileStmt = connection.prepareStatement(queryInsertUserProfile)) {
+                                    profileStmt.setString(1, accountNumber); // Set the generated account number
 
-                                // Send a welcome email
-                                EmailSender.sendEmail(
-                                        email,
-                                        "Welcome to RapidPay!",
-                                        "Dear " + username + ",\n\nThank you for signing up for RapidPay. We're excited to have you on board!\n\nYour account number is: " + accountNumber + "\nYour credit card number is: " + creditCardNumber + "\n\nBest Regards,\nRapidPay Team"
-                                );
+                                    int rowsInsertedProfile = profileStmt.executeUpdate();
+
+                                    if (rowsInsertedProfile > 0) {
+                                        JOptionPane.showMessageDialog(panel, "Account Created Successfully!");
+
+                                        // Send a welcome email
+                                        EmailSender.sendEmail(
+                                                email,
+                                                "Welcome to RapidPay!",
+                                                "Dear " + username + ",\n\nThank you for signing up for RapidPay. We're excited to have you on board!\n\nYour account number is: " + accountNumber + "\nYour credit card number is: " + creditCardNumber + "\n\nBest Regards,\nRapidPay Team"
+                                        );
+                                    } else {
+                                        JOptionPane.showMessageDialog(panel, "Failed to update user profile. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
+                                    }
+                                }
                             } else {
                                 JOptionPane.showMessageDialog(panel, "Failed to initialize user balance. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
                             }
